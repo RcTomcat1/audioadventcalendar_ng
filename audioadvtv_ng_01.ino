@@ -7,6 +7,7 @@
 
 // V 0.2: code is basically working
 // V 0.3: code works like expected
+// V 0.4 code added for valentines day and some rework, added more output for troubleshooting via monitor. by RcTomcat
   
 
 /* Todo:
@@ -23,7 +24,7 @@ RTC_DS1307 rtc;         //create an rtc object
 
 void setup() {
   Serial.begin(57600);
-  Serial.println("Audio Advent Calendar by Mischka");
+  Serial.println("Audio Advent Calendar");
   Serial.println("----");
   
   pinMode(4, INPUT);
@@ -39,16 +40,23 @@ void setup() {
 // setup rtc
   Wire.begin();
   rtc.begin();
-  rtc.adjust(DateTime(__DATE__, __TIME__));
+ if (! rtc.isrunning()) {
+Serial.println("RTC is NOT running!");
+// following line sets the RTC to the date & time this sketch was compiled
+rtc.adjust(DateTime(__DATE__, __TIME__));
+} 
+//  rtc.adjust(DateTime(__DATE__, __TIME__));
 }
 
 void loop() {
   
   DateTime now = rtc.now();
-  
+  Serial.println(now.day());
+  Serial.println("Hello");
+  Serial.println(now.month());
   if(mp3.getStatus() != MP3_STATUS_PLAYING) {
-    if (now.day() < 25){
-      if (now.month() == 12) {
+    if (now.month() == 12){
+        if (now.day() < 25) {
 
         Serial.print("playing track Number: ");
         Serial.println(now.day());
@@ -56,14 +64,30 @@ void loop() {
         mp3.playFileNumberInFolderNumber(0, now.day());      
       }
       else{
-        Serial.println("not an advent day");
+        Serial.println("not an advent day, wrong day");
         delay(100);
         exit(0);
       }
     }
+    if (now.month() == 2){
+            if (now.day() == 14) {
+
+        Serial.print("playing track Number: ");
+        Serial.println(now.day());
+
+        mp3.playFileNumberInFolderNumber(2, 14);      
+      }
+      else{
+        Serial.println("not valentines day");
+        delay(100);
+        exit(0);
+      }
+    }      
+          else{
+        Serial.println("not a month with anything to do");
+        delay(100);
+        exit(0);
+      }
   }
 exit(0);  
 }
-
-
-
